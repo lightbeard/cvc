@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+-->
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <script src="node_modules/@ionic/core/dist/ionic.js"></script>
+        <link href="node_modules/@ionic/core/css/core.css" rel="stylesheet">
+    </head>
+    <body style="background: black">
+        <ion-app>
+          <div id="load-container" class="ion-page" main>
+            <ion-header>
+              <ion-toolbar>
+                <ion-title>Cost Per Calorie</ion-title>
+              </ion-toolbar>
+            </ion-header>
+            <ion-content>
+              <style>
+                @font-face {
+                  font-family: 'Indie Flower';
+                  font-style: normal;
+                  font-weight: 400;
+                  src: local('Indie Flower'), local('IndieFlower'), url(css/cursive.woff2) format('woff2');
+                  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+                }
+                ion-input {
+                  font-size: 2.5em;
+                  color: #111;
+                  width: 40%;
+                  max-width: 40%;
+                }
+                ion-select {
+                  font-size: 1.5em;
+                  color: #222;
+                  width: 60%;
+                  max-width: 60%;
+                }
+                /* https://github.com/ionic-team/ionic/issues/15888 */
+                .cloned-input input {
+                  width: 100%;
+                  height: 100%;
+                  padding: 0;
+                  border: 0;
+                  font-size: 0;
+                  outline: 0;
+                  background: transparent;
+                }
+                .list-ios {
+                  margin-bottom: 5px !important;
+                }
+              </style>
+              <ion-list lines="full">
+                <ion-item>
+                  <ion-label slot="start">Qty / Servings</ion-label>
+                  <ion-input id="qty" slot="end" type="text" value="1"></ion-input>
+                </ion-item>
+                <ion-item>
+                  <ion-label slot="start">Calories</ion-label>
+                  <ion-input id="calories" slot="end" type="text" placeholder="210"></ion-input>
+                </ion-item>
+                <ion-item text-right>
+                  <ion-select id="produce" slot="end" placeholder="Produce (optional)">
+                    <ion-select-option value="95">Apple</ion-select-option>
+                    <ion-select-option value="234">Avacado</ion-select-option>
+                    <ion-select-option value="105">Banana</ion-select-option>
+                    <ion-select-option value="85">Blueberries (1 cup)</ion-select-option>
+                    <ion-select-option value="65">Rasberries (1 cup)</ion-select-option>
+                    <ion-select-option value="307">Cabbage</ion-select-option>
+                    <ion-select-option value="65">Chard</ion-select-option>
+                    <ion-select-option value="24">Green Pepper</ion-select-option>
+                    <ion-select-option value="47">Strawberries (1 cup)</ion-select-option>
+                  </ion-select>
+                </ion-item>
+                <ion-item>
+                  <ion-label>Cost</ion-label>
+                  <ion-input id="cost" slot="end" type="text" placeholder="$1.00"></ion-input>
+                </ion-item>
+              </ion-list>
+              <div style="text-align: right;">
+                <ion-button size="large" style="padding-right: 10px;" fill="outline" color="success">Submit</ion-button>
+              </div>
+              <div style="margin: 0 auto; padding-left: 10px;">
+                <span id="grade" style="font-size: 5em; color: #333; font-weight: bold; font-family: 'Indie Flower', cursive;"></span>
+                <span id="ef" style="font-size: 1em; line-height: 5em;"></span>
+              </div>
+              <ion-grid>
+                <ion-row>
+                  <ion-col><b>Guide</b></ion-col>
+                  <ion-col><b>cal/&cent;</b></ion-col>
+                  <ion-col><b>Example</b></ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>A+</ion-col>
+                  <ion-col>&gt;15</ion-col>
+                  <ion-col>Peanuts (25lb bag)</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>A</ion-col>
+                  <ion-col>10-15</ion-col>
+                  <ion-col>Balogna (5lb)</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>B+</ion-col>
+                  <ion-col>5-10</ion-col>
+                  <ion-col>Chicken Thighs</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>B</ion-col>
+                  <ion-col>2-5</ion-col>
+                  <ion-col>Avacado ($0.69)</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>C</ion-col>
+                  <ion-col>1-2</ion-col>
+                  <ion-col>Chipotle Salad</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>D</ion-col>
+                  <ion-col>0.5-1.0</ion-col>
+                  <ion-col>Salad Paul/Elizabeth's</ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-col>F</ion-col>
+                  <ion-col>&lt;0.5</ion-col>
+                  <ion-col>Outback Filet Mignon</ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-content>
+          </div>
+        </ion-app>
+        <script type="text/javascript" src="cordova.js"></script>
+        <!--<script src="https://unpkg.com/ionicons@4.0.0/dist/ionicons.js"></script>-->
+        <script>
+
+          (async function(){
+
+            const f = new Intl.NumberFormat('en-US', {
+              /*style: 'currency',
+              currency: 'USD',*/
+              minimumFractionDigits: 2
+            });
+
+            await document.querySelector('ion-content').componentOnReady();
+
+            $('#produce').on('ionChange', event => {
+              let $input = $(event.target);
+              let calories = Number($input.prop('value'));
+              $('#calories').prop('value', calories);
+            });
+
+            $('ion-button').click(_ => {
+
+              let qty = Number($('#qty').prop('value'));
+              let calories = qty * Number($('#calories').prop('value'));
+              let cost = $('#cost').prop('value').replace(/\$/,'');
+              cost = Number(cost);
+              cost = cost * 100;
+
+              if( isNaN(qty) ||
+                  qty <= 0 ||
+                  isNaN(calories) ||
+                  calories <= 0 ||
+                  isNaN(cost) ||
+                  cost <= 0) throw new Error();
+
+              const ef = calories / cost;
+              let grade = 'F';
+
+              if(ef > 15) grade = 'A+';
+              else if(ef > 10) grade = 'A';
+              else if(ef > 5) grade = 'B+';
+              else if(ef > 2) grade = 'B';
+              else if(ef > 1) grade = 'C';
+              else if (ef > 0.5) grade = 'D';
+
+
+              $('#grade').html(grade);
+              $('#ef').html(`&nbsp;${f.format(ef)}&nbsp;&nbsp;(cal/&cent;)`);
+            });
+
+            function err() {
+              console.error(arguments);
+              alert('something went wrong');
+            }
+
+            window.onerror = err;
+            window.addEventListener('unhandledrejection', err);
+
+          })();
+        </script>
+    </body>
+</html>
